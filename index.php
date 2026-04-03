@@ -12,6 +12,13 @@ if (isset($_POST["adicionar"])) {
     header("Location: index.php");
     exit;
 }
+if (isset($_GET["deletar"])) {
+    $id = $_GET["deletar"] ;
+    $sql = $pdo->prepare("DELETE FROM estoque WHERE id = ?");
+    $sql->execute([$id]);
+    header("Location: index.php"); // Redireciona para atualizar a lista
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -19,7 +26,20 @@ if (isset($_POST["adicionar"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de estoque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
+<script>
+function confirmarExclusao(event, nomeProduto) {
+    if (!confirm("Tem certeza que deseja excluir o produto: " + nomeProduto + "?")) {
+        event.preventDefault(); // Cancela o clique se o usuário desistir
+        return false;
+    }
+    return true;
+}
+</script>
+
+
 <body>
     <header>
         <div> 
@@ -48,7 +68,7 @@ if (isset($_POST["adicionar"])) {
                                 <th>Nome do produto</th>
                                 <th>Custo</th>
                                 <th>Preço</th>
-                                <th>Status</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,6 +78,13 @@ if (isset($_POST["adicionar"])) {
                                 <td><?php echo $item['produto'] ;?></td>
                                 <td>R$ <?php echo number_format($item['custo'] , 2 , "," , ".") ;?></td>
                                 <td>R$ <?php echo number_format($item['preco'] , 2 , "," , ".") ;?></td>
+                                <td> 
+                                    <a href="?deletar=<?= $item['id'] ?>" 
+                                    class="btn-excluir" 
+                                    onclick="return confirmarExclusao(event, '<?= $item['produto'] ?>')">
+                                    <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                             <?php } ?>
                         </tbody>
